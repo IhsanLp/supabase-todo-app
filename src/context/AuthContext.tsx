@@ -31,6 +31,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const signOut = async () => {
+    Object.keys(localStorage).forEach((key) => {
+      if (key.startsWith('todos_cache_')) {
+        localStorage.removeItem(key)
+      }
+    })
     await supabase.auth.signOut()
   }
 

@@ -40,7 +40,8 @@ export function useTodos(userId: string) {
         .order('created_at', { ascending: false })
 
       if (error) {
-        setError(error.message)
+        console.error('[fetchTodos]', error)
+        setError('Todos konnten nicht geladen werden.')
         showToast('Fehler beim Laden der Todos', 'error')
       } else {
         setTodos(data as Todo[])
@@ -84,6 +85,22 @@ export function useTodos(userId: string) {
   }, [userId, showToast])
 
   const addTodo = useCallback(async (title: string, description: string, priority: 1 | 2 | 3, dueDate: string | null = null) => {
+    if (!title || title.length > 255) {
+      showToast('Titel muss zwischen 1 und 255 Zeichen lang sein.', 'error')
+      return
+    }
+    if (description.length > 1000) {
+      showToast('Beschreibung darf maximal 1000 Zeichen lang sein.', 'error')
+      return
+    }
+    if (![1, 2, 3].includes(priority)) {
+      showToast('Ungültige Priorität.', 'error')
+      return
+    }
+    if (dueDate && isNaN(Date.parse(dueDate))) {
+      showToast('Ungültiges Datum.', 'error')
+      return
+    }
     const { error } = await supabase.from('todos').insert({
       title,
       description,
@@ -92,18 +109,34 @@ export function useTodos(userId: string) {
       user_id: userId,
     })
     if (error) {
-      setError(error.message)
-      showToast('Fehler beim Erstellen', 'error')
+      console.error('[addTodo]', error)
+      showToast('Fehler beim Erstellen. Bitte versuche es erneut.', 'error')
     } else {
       showToast('Todo erstellt!')
     }
   }, [userId, showToast])
 
   const updateTodo = useCallback(async (id: string, updates: Partial<Pick<Todo, 'title' | 'description' | 'priority' | 'is_complete' | 'due_date'>>) => {
+    if (updates.title !== undefined && (!updates.title || updates.title.length > 255)) {
+      showToast('Titel muss zwischen 1 und 255 Zeichen lang sein.', 'error')
+      return
+    }
+    if (updates.description !== undefined && updates.description.length > 1000) {
+      showToast('Beschreibung darf maximal 1000 Zeichen lang sein.', 'error')
+      return
+    }
+    if (updates.priority !== undefined && ![1, 2, 3].includes(updates.priority)) {
+      showToast('Ungültige Priorität.', 'error')
+      return
+    }
+    if (updates.due_date && isNaN(Date.parse(updates.due_date))) {
+      showToast('Ungültiges Datum.', 'error')
+      return
+    }
     const { error } = await supabase.from('todos').update(updates).eq('id', id)
     if (error) {
-      setError(error.message)
-      showToast('Fehler beim Aktualisieren', 'error')
+      console.error('[updateTodo]', error)
+      showToast('Fehler beim Aktualisieren. Bitte versuche es erneut.', 'error')
     } else {
       showToast('Todo aktualisiert!')
     }
@@ -112,8 +145,8 @@ export function useTodos(userId: string) {
   const deleteTodo = useCallback(async (id: string) => {
     const { error } = await supabase.from('todos').delete().eq('id', id)
     if (error) {
-      setError(error.message)
-      showToast('Fehler beim Löschen', 'error')
+      console.error('[deleteTodo]', error)
+      showToast('Fehler beim Löschen. Bitte versuche es erneut.', 'error')
     } else {
       showToast('Todo gelöscht!')
     }
@@ -122,7 +155,8 @@ export function useTodos(userId: string) {
   const toggleComplete = useCallback(async (id: string, currentValue: boolean) => {
     const { error } = await supabase.from('todos').update({ is_complete: !currentValue }).eq('id', id)
     if (error) {
-      setError(error.message)
+      console.error('[toggleComplete]', error)
+      showToast('Fehler beim Aktualisieren. Bitte versuche es erneut.', 'error')
     } else {
       showToast(currentValue ? 'Todo wieder offen' : 'Todo erledigt!')
     }

@@ -20,7 +20,8 @@ export function AuthForm() {
       : await supabase.auth.signUp({ email, password })
 
     if (error) {
-      setError(error.message)
+      console.error('[auth]', error)
+      setError('Anmeldung fehlgeschlagen. Bitte überprüfe deine Eingaben.')
     }
 
     setLoading(false)

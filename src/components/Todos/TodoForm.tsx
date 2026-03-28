@@ -34,6 +34,7 @@ export function TodoForm({ todo, onSubmit, onCancel }: TodoFormProps) {
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Was muss erledigt werden?"
           required
+          maxLength={255}
           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <input
@@ -41,6 +42,7 @@ export function TodoForm({ todo, onSubmit, onCancel }: TodoFormProps) {
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Beschreibung (optional)"
+          maxLength={1000}
           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <div className="flex items-center gap-3 flex-wrap">
